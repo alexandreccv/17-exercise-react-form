@@ -1,11 +1,21 @@
 import { useState, ChangeEvent } from 'react';
 
-function App() {
-  const [name, setName] = useState<string>('');
+const INITIAL_FORM = {
+  name: '',
+  email: '',
+  cpf: '',
+};
 
-  const handleUpperName = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value.toUpperCase();
-    setName(value);
+function App() {
+  const [formInfo, setFormInfo] = useState(INITIAL_FORM);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    setFormInfo((prevFormInfo) => ({
+      ...prevFormInfo,
+      [name]: name === 'name' ? value.toUpperCase() : value,
+    }));
   };
 
   return (
@@ -13,32 +23,36 @@ function App() {
       <legend>Dados Pessoais</legend>
 
       <label>
-        Nome:
+        Nome
         <input
           type="text"
-          id="name"
-          value={ name }
-          onChange={ handleUpperName }
+          name="name"
+          value={ formInfo.name }
+          onChange={ handleChange }
           maxLength={ 40 }
           required
         />
       </label>
 
       <label>
-        Email:
+        Email
         <input
           type="email"
-          id="email"
+          name="email"
+          value={ formInfo.email }
+          onChange={ handleChange }
           maxLength={ 50 }
           required
         />
       </label>
 
       <label>
-        CPF:
+        CPF
         <input
           type="text"
-          id="cpf"
+          name="cpf"
+          value={ formInfo.cpf }
+          onChange={ handleChange }
           maxLength={ 11 }
           required
         />
