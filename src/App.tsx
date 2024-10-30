@@ -1,5 +1,6 @@
-import { useState, ChangeEvent, FocusEvent } from 'react';
+import { useState, ChangeEvent, FocusEvent, MouseEvent, FormEvent } from 'react';
 import states from './countryStates';
+import ConsolidatedData from './ConsolidatedData';
 
 const INITIAL_FORM = {
   name: '',
@@ -7,20 +8,25 @@ const INITIAL_FORM = {
   cpf: '',
   endereco: '',
   cidade: '',
-  estado: states[0] || '', // Define o primeiro estado como padrão
+  estado: states[0] || '',
   tipo: 'Casa',
+  resumo: '',
+  cargo: '',
+  descricaoCargo: '',
 };
 
 function App() {
   const [formInfo, setFormInfo] = useState(INITIAL_FORM);
+  const [alertShown, setAlertShown] = useState(false); // Para mostrar o alerta apenas uma vez
+  const [showConsolidatedData, setShowConsolidatedData] = useState(false); // Controla a exibição dos dados consolidados
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement
+  | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
-
     let formattedValue = value;
 
     if (name === 'endereco') {
-      formattedValue = value.replace(/[^a-zA-Z0-9\s]/g, ''); // Remove caracteres especiais
+      formattedValue = value.replace(/[^a-zA-Z0-9\s]/g, '');
     }
 
     setFormInfo((prevFormInfo) => ({
@@ -39,8 +45,20 @@ function App() {
     }
   };
 
+  const handleCargoMouseEnter = (event: MouseEvent<HTMLInputElement>) => {
+    if (!alertShown) {
+      alert('Preencha com cuidado esta informação.');
+      setAlertShown(true);
+    }
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Evita o recarregamento da página
+    setShowConsolidatedData(true); // Exibe a <div> com os dados consolidados
+  };
+
   return (
-    <form action="">
+    <form onSubmit={ handleSubmit }>
       <fieldset>
         <legend>Dados Pessoais</legend>
 
@@ -150,6 +168,49 @@ function App() {
           </label>
         </div>
       </fieldset>
+
+      <fieldset>
+        <legend>Dados Profissionais</legend>
+
+        <label>
+          Resumo do currículo
+          <textarea
+            name="resumo"
+            value={ formInfo.resumo }
+            onChange={ handleChange }
+            maxLength={ 1000 }
+            required
+          />
+        </label>
+
+        <label>
+          Cargo
+          <input
+            type="text"
+            name="cargo"
+            value={ formInfo.cargo }
+            onChange={ handleChange }
+            maxLength={ 40 }
+            onMouseEnter={ handleCargoMouseEnter }
+            required
+          />
+        </label>
+
+        <label>
+          Descrição do cargo
+          <textarea
+            name="descricaoCargo"
+            value={ formInfo.descricaoCargo }
+            onChange={ handleChange }
+            maxLength={ 500 }
+            required
+          />
+        </label>
+      </fieldset>
+
+      <button type="submit">Enviar</button>
+
+      {showConsolidatedData && <ConsolidatedData formInfo={ formInfo } />}
     </form>
   );
 }
